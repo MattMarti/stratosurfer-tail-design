@@ -1,7 +1,21 @@
 {
+    "body dim" :
+    {
+        "aesign aoa deg"        : 1.854947,
+        "Nose mm"               : [-53.62,  24.2 ],
+        "deck trailing edge mm" : [319.81,  0.0  ],
+        "wing leading edge mm"  : [227.56,  96.21],
+        "tail crux mm"          : [842.42,  41.94],
+        "tail spike tip mm"     : [791.82,  92.32],
+        "center of gravity mm"  : [295.06],
+        "gnss position mm"      : [639.52,  66.74]
+    },
+    "wing dim" :
+    {
+        "wingspan mm" : 1500,
+        "chord mm" : 213.5,
+        "wing area dmsq": 27.4
+    },
     "mass_g": 1800,
-    "center_of_gravity_wing_root_mm": 67.5,
-    "wingspan_mm": 1500,
-    "length_mm": 1000,
-    "wing_area_dmsq": 27.4
+    "wingspan_mm": 1500
 }

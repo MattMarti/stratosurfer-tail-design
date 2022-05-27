@@ -106,7 +106,7 @@ def get_chord_orientation(data, scale_px_mm):
 def get_design_positions(data, scale_px_mm, deck_pitch, design_aoa):
     print(" ")
 
-    nose = scale_px_mm * data["nose"]
+    nose_pic = scale_px_mm * data["nose"]
     wing_le_pic = scale_px_mm * data["wing leading edge"]
     tail_cr_pic = scale_px_mm * data["tail spike crux"]
     tail_st_pic = scale_px_mm * data["tail spike tip"]
@@ -121,6 +121,7 @@ def get_design_positions(data, scale_px_mm, deck_pitch, design_aoa):
     orientation = np.arctan2(deck_vector[1], deck_vector[0])
     r = Rotation.from_euler('z', -orientation).as_matrix()[0:2, 0:2]
 
+    nose = r @ (nose_pic - ref)
     deck_te = r @ (deck_te_pic - ref)
     wing_le = r @ (wing_le_pic - ref)
     tail_cr = r @ (tail_cr_pic - ref)
@@ -135,6 +136,7 @@ def get_design_positions(data, scale_px_mm, deck_pitch, design_aoa):
     cog[1] = np.NaN # Can't tell where it is in y, we'll figure that out later
 
     with np.printoptions(precision=2, suppress=True):
+        print(f"Nose                {nose}")
         print(f"Deck trailing edge  {deck_te}")
         print(f"Wing leading edge   {wing_le}")
         print(f"Tail crux           {tail_cr}")
