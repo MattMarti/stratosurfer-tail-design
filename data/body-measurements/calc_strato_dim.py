@@ -96,6 +96,9 @@ def get_chord_orientation(data, scale_px_mm):
     wing_te_mm = get_wing_te_position(data, scale_px_mm)
 
     vector = wing_le_mm - wing_te_mm
+
+    print(f"Chord: {np.linalg.norm(vector):2f}")
+
     angle_global = np.rad2deg(np.arctan2(vector[1], vector[0]))
     if angle_global < 0: angle_global += 360
     pitch = 180 - angle_global

@@ -1,8 +1,9 @@
 {
     "body dim" :
     {
-        "aesign aoa deg"        : 1.854947,
-        "Nose mm"               : [-53.62,  24.2 ],
+        "design aoa deg"        : 1.854947,
+        "chord mm"              : 214.661988,
+        "nose mm"               : [-53.62,  24.2 ],
         "deck trailing edge mm" : [319.81,  0.0  ],
         "wing leading edge mm"  : [227.56,  96.21],
         "tail crux mm"          : [842.42,  41.94],
