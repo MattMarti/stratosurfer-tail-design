@@ -97,13 +97,14 @@ def get_chord_orientation(data, scale_px_mm):
 
     vector = wing_le_mm - wing_te_mm
 
-    print(f"Chord: {np.linalg.norm(vector):2f}")
+    chord = np.linalg.norm(vector)
+    print(f"Chord: {chord:2f}")
 
     angle_global = np.rad2deg(np.arctan2(vector[1], vector[0]))
     if angle_global < 0: angle_global += 360
     pitch = 180 - angle_global
 
-    return pitch
+    return pitch, chord
 
 
 def get_design_positions(data, scale_px_mm, deck_pitch, design_aoa):
@@ -148,6 +149,23 @@ def get_design_positions(data, scale_px_mm, deck_pitch, design_aoa):
         print(f"GNSS position:      {gnss}")
         print(" ")
 
+    deck_frame_measurements = {
+        "deck": {
+            "leading edge mm": [0, 0],
+            "trailing edge mm": deck_te.tolist(),
+        },
+        "wing": {
+            "leading edge mm": wing_le.tolist(),
+        },
+        "tail": {
+            "crux mm": tail_cr.tolist(),
+            "spike tip mm": tail_st.tolist(),
+        },
+        "centor of gravity mm": cog.tolist()[0],
+        "gnss mm": gnss.tolist()
+    }
+    return deck_frame_measurements
+
 
 def preprocess_data(data):
     for key, points in data.items():
@@ -173,18 +191,23 @@ def load_data(path):
 def main():
     fname = "strato-body-measurements.txt"
     data = load_data(fname)
-    
+
     scale_px_mm, ruler_angle_deg = get_scale(data)
 
     deck_pitch = get_deck_orientation(data)
     print(f"Deck pitch: {deck_pitch:.3f}")
-    chord_pitch = get_chord_orientation(data, scale_px_mm)
+    chord_pitch, chord = get_chord_orientation(data, scale_px_mm)
     print(f"Chord pitch: {chord_pitch:.3f}")
 
     design_aoa = chord_pitch - deck_pitch
     print(f"\nDesign AoA: {design_aoa:.6f}")
-    
-    get_design_positions(data, scale_px_mm, deck_pitch, design_aoa)
+
+    deck_frame_measurements = get_design_positions(data, scale_px_mm, deck_pitch, design_aoa)
+    deck_frame_measurements["wing"]["design angle of attack deg"] = np.asscalar(design_aoa)
+    deck_frame_measurements["wing"]["chord"] = np.asscalar(chord)
+
+    with open("measurements.yaml", "w") as fid:
+            yaml.dump(deck_frame_measurements, fid)
 
 
 if __name__ == "__main__":

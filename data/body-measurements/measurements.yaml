@@ -1,0 +1,24 @@
+centor of gravity mm: 295.0557674691284
+deck:
+  leading edge mm:
+  - 0
+  - 0
+  trailing edge mm:
+  - 319.8149938504638
+  - 0.0
+gnss mm:
+- 639.5166896166659
+- 66.7409567686025
+tail:
+  crux mm:
+  - 842.419308440183
+  - 41.93522647868474
+  spike tip mm:
+  - 791.8190635237193
+  - 92.31685388316595
+wing:
+  chord: 214.66198772065005
+  design angle of attack deg: 1.854947246459517
+  leading edge mm:
+  - 227.5557674691284
+  - 96.21200613355794
