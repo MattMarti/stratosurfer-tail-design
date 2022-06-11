@@ -1,0 +1,3 @@
+[submodule "stratosurfer_tail_design/submodules"]
+	path = stratosurfer_tail_design/submodules
+	url = https://github.com/MattMarti/airfoil-tools.git
