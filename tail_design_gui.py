@@ -1,8 +1,4 @@
-# Python 3
-
 import tkinter as tk
-from tkinter import filedialog
-import logging
 
 import numpy as np
 
@@ -20,16 +16,13 @@ GUI_BUTTON_PADDING = 20
 
 class AirfoilDesignControlFrame:
 
-    def __init__(self):
-        pass
-
-    def set_gui_options(self, frame):
+    def __init__(self, parent_frame):
         naca_digit_label = tk.Label(
-            master=frame,
-            text='NACA 4 Digit')
+            master=parent_frame,
+            text="Tail Aifoil\nNACA 4-digit")
         naca_digit_label.pack(side=tk.TOP)
 
-        m_frame = tk.Frame(master=frame)
+        m_frame = tk.Frame(master=parent_frame)
         m_frame.pack(side=tk.TOP)
 
         m_label = tk.Label(
@@ -44,7 +37,7 @@ class AirfoilDesignControlFrame:
         self.m_entry.pack(side=tk.RIGHT)
         self.m_entry.insert(0, "4")
 
-        p_frame = tk.Frame(master=frame)
+        p_frame = tk.Frame(master=parent_frame)
         p_frame.pack(side=tk.TOP)
 
         p_label = tk.Label(
@@ -59,7 +52,7 @@ class AirfoilDesignControlFrame:
         self.p_entry.pack(side=tk.RIGHT)
         self.p_entry.insert(0, "4")
 
-        t_frame = tk.Frame(master=frame)
+        t_frame = tk.Frame(master=parent_frame)
         t_frame.pack(side=tk.TOP)
 
         t_label = tk.Label(
@@ -87,19 +80,13 @@ class AirfoilDesignControlFrame:
         return int(self.t_entry.get())
 
     def get_upper_surface(self):
-        m = self.m
-        p = self.p
-        t = self.t
-        airfoil = NacaFourDigitAirfoil(m, p, t)
+        airfoil = NacaFourDigitAirfoil(self.m, self.p, self.t)
         xu = np.linspace(1, 0, 10000)
         xu, yu = airfoil.get_upper(xu)
         return xu, yu
 
     def get_lower_surface(self):
-        m = self.m
-        p = self.p
-        t = self.t
-        airfoil = NacaFourDigitAirfoil(m, p, t)
+        airfoil = NacaFourDigitAirfoil(self.m, self.p, self.t)
         xl = np.linspace(0, 1, 10000)
         xl, yl = airfoil.get_lower(xl)
         return xl, yl
@@ -136,7 +123,7 @@ class AirfoilPlotter:
 class GuiManager:
 
     def __init__(self):
-        self.elements = {}
+        self.plot_frames = {}
         self.root = tk.Tk()
         self.gui_data = None
 
@@ -153,7 +140,7 @@ class GuiManager:
         self.root.destroy()
 
     def refresh_plot(self):
-        self.plotter.refresh_plot(self.elements["airfoil frame"])
+        self.plotter.refresh_plot(self.plot_frames["airfoil frame"])
 
     def initialize_figure(self):
         self.figure_frame = tk.Frame(master=self.root)
@@ -175,12 +162,13 @@ class GuiManager:
         design_control_frame.pack(side=tk.BOTTOM, anchor=tk.NE)
 
         # Digit Settings
-        naca_digit_frame = tk.Frame(master=design_control_frame)
+        naca_digit_frame = tk.Frame(
+            master=design_control_frame,
+            highlightbackground="grey",
+            highlightthickness=1)
         naca_digit_frame.pack(side=tk.RIGHT)
-
-        airfoil_design_frame = AirfoilDesignControlFrame()
-        airfoil_design_frame.set_gui_options(naca_digit_frame)
-        self.elements["airfoil frame"] = airfoil_design_frame
+        airfoil_design_frame = AirfoilDesignControlFrame(naca_digit_frame)
+        self.plot_frames["airfoil frame"] = airfoil_design_frame
 
 
 def main():
