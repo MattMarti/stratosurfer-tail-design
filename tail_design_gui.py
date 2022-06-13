@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 
 import numpy as np
 
@@ -14,6 +15,12 @@ GUI_BUTTON_WIDTH = 10
 GUI_BUTTON_PADDING = 20
 
 
+def apply_pretty_plot_settings(ax):
+    ax.grid(which="major")
+    ax.minorticks_on()
+    ax.grid(which="minor", linestyle="--", linewidth=0.3)
+
+
 class AirfoilDesignControlFrame:
 
     def __init__(self, parent_frame):
@@ -22,62 +29,40 @@ class AirfoilDesignControlFrame:
             text="Tail Aifoil\nNACA 4-digit")
         naca_digit_label.pack(side=tk.TOP)
 
-        m_frame = tk.Frame(master=parent_frame)
-        m_frame.pack(side=tk.TOP)
+        self.entries = {}
+        self.add_entry(parent_frame, "m", "0")
+        self.add_entry(parent_frame, "p", "5")
+        self.add_entry(parent_frame, "t", "12")
 
-        m_label = tk.Label(
-            m_frame,
-            text='M',
+    def add_entry(self, parent_frame, label_text, default_value:str):
+        frame = tk.Frame(master=parent_frame)
+        frame.pack(side=tk.TOP)
+
+        label = tk.Label(
+            master=frame,
+            text=label_text,
             width=round(GUI_BUTTON_WIDTH/2))
-        m_label.pack(side=tk.LEFT)
+        label.pack(side=tk.LEFT)
 
-        self.m_entry = tk.Entry(
-            m_frame,
-            width=GUI_BUTTON_WIDTH)
-        self.m_entry.pack(side=tk.RIGHT)
-        self.m_entry.insert(0, "4")
-
-        p_frame = tk.Frame(master=parent_frame)
-        p_frame.pack(side=tk.TOP)
-
-        p_label = tk.Label(
-            p_frame,
-            text='P',
+        entry = tk.Entry(
+            master=frame,
             width=round(GUI_BUTTON_WIDTH/2))
-        p_label.pack(side=tk.LEFT)
+        entry.pack(side=tk.RIGHT)
+        entry.insert(0, default_value)
 
-        self.p_entry = tk.Entry(
-            p_frame,
-            width=GUI_BUTTON_WIDTH)
-        self.p_entry.pack(side=tk.RIGHT)
-        self.p_entry.insert(0, "4")
-
-        t_frame = tk.Frame(master=parent_frame)
-        t_frame.pack(side=tk.TOP)
-
-        t_label = tk.Label(
-            t_frame,
-            text='T',
-            width=round(GUI_BUTTON_WIDTH/2))
-        t_label.pack(side=tk.LEFT)
-
-        self.t_entry = tk.Entry(
-            t_frame,
-            width=GUI_BUTTON_WIDTH)
-        self.t_entry.pack(side=tk.RIGHT)
-        self.t_entry.insert(0, "10")
+        self.entries[label_text] = entry
 
     @property
     def m(self):
-        return int(self.m_entry.get())
+        return int(self.entries["m"].get())
 
     @property
     def p(self):
-        return int(self.p_entry.get())
+        return int(self.entries["p"].get())
 
     @property
     def t(self):
-        return int(self.t_entry.get())
+        return int(self.entries["t"].get())
 
     def get_upper_surface(self):
         airfoil = NacaFourDigitAirfoil(self.m, self.p, self.t)
@@ -95,7 +80,7 @@ class AirfoilDesignControlFrame:
 class AirfoilPlotter:
 
     def __init__(self, parent_frame):
-        self.fig = Figure(figsize=(5,4), dpi=100)
+        self.fig = Figure(figsize=(5, 4), dpi=100)
         self.ax = self.fig.add_subplot(111)
 
         canvas = FigureCanvasTkAgg(self.fig, master=parent_frame)
@@ -112,24 +97,114 @@ class AirfoilPlotter:
         xl, yl = airfoil_design_frame.get_lower_surface()
 
         self.ax.clear()
-        self.ax.plot(np.concatenate((xu,xl)), np.concatenate((yu, yl), 0), color="orange")
-        self.ax.axis('equal')
-        self.ax.grid(which='major')
-        self.ax.minorticks_on()
-        self.ax.grid(which='minor', linestyle='--', linewidth=0.3)
+        self.ax.plot(np.concatenate((xu,xl)), np.concatenate((yu, yl), 0))
+        self.ax.axis("equal")
+        apply_pretty_plot_settings(self.ax)
+        self.fig.canvas.draw()
+
+
+class TailDesignControlFrame:
+
+    def __init__(self, parent_frame):
+        naca_digit_label = tk.Label(
+            master=parent_frame,
+            text="Tail Dimensions\nUnits: mm")
+        naca_digit_label.pack(side=tk.TOP)
+
+        self.entries = {}
+        self.add_entry(parent_frame, "Span", "250")
+        self.add_entry(parent_frame, "Base chord", "200")
+        self.add_entry(parent_frame, "Tip chord", "150")
+        self.add_entry(parent_frame, "Sweep", "50")
+
+    def add_entry(self, parent_frame, label_text, default_value:str):
+        frame = tk.Frame(master=parent_frame)
+        frame.pack(side=tk.TOP, expand=True)
+
+        label = tk.Label(
+            master=frame,
+            text=label_text,
+            width=GUI_BUTTON_WIDTH)
+        label.pack(side=tk.LEFT)
+
+        entry = tk.Entry(
+            master=frame,
+            width=round(GUI_BUTTON_WIDTH/2))
+        entry.pack(side=tk.RIGHT)
+        entry.insert(0, default_value)
+
+        self.entries[label_text] = entry
+
+    @property
+    def span(self):
+        return float(self.entries["Span"].get())
+
+    @property
+    def base_chord(self):
+        return float(self.entries["Base chord"].get())
+
+    @property
+    def tip_chord(self):
+        return float(self.entries["Tip chord"].get())
+
+    @property
+    def sweep(self):
+        return float(self.entries["Sweep"].get())
+
+    def get_surface(self):
+        x = [
+            0,
+            self.sweep + (self.base_chord - self.tip_chord),
+            self.sweep + (self.base_chord - self.tip_chord) + self.tip_chord,
+            self.base_chord,
+            0,
+        ]
+        y = [
+            0,
+            self.span,
+            self.span,
+            0,
+            0,
+        ]
+        return np.array(x), np.array(y)
+
+
+class TailPlotter:
+
+    def __init__(self, parent_frame):
+        self.fig = Figure(figsize=(5, 4), dpi=100)
+        self.ax = self.fig.add_subplot(111)
+
+        canvas = FigureCanvasTkAgg(self.fig, master=parent_frame)
+        canvas.draw()
+
+        toolbar = NavigationToolbar2Tk(canvas, parent_frame, pack_toolbar=False)
+        toolbar.update()
+
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        toolbar.pack(side=tk.TOP, fill=tk.X)
+
+    def refresh_plot(self, design_frame:TailDesignControlFrame):
+        x, y = design_frame.get_surface()
+
+        self.ax.clear()
+        self.ax.plot(x, y, 0)
+        apply_pretty_plot_settings(self.ax)
+        self.ax.axis("equal")
         self.fig.canvas.draw()
 
 
 class GuiManager:
 
     def __init__(self):
-        self.plot_frames = {}
         self.root = tk.Tk()
-        self.gui_data = None
+        self.root.title("Stratosurfer Tail Design Tool")
 
-        self.root.title('Airfoil Plotter')
-        self.initialize_design_control_frame()
-        self.initialize_figure()
+        self.plotters = {}
+        self.design_frames = {}
+        self.initialize_design_control_frames()
+        self.initialize_figures()
+
         self.refresh_plot()
 
     def run(self):
@@ -140,35 +215,57 @@ class GuiManager:
         self.root.destroy()
 
     def refresh_plot(self):
-        self.plotter.refresh_plot(self.plot_frames["airfoil frame"])
+        for tab_index in self.figure_control.tabs():
+            tab = self.figure_control.tab(tab_index)
+            tab_name = tab["text"]
+            plotter = self.plotters[tab_name]
+            design_frame = self.design_frames[tab_name]
+            plotter.refresh_plot(design_frame)
 
-    def initialize_figure(self):
-        self.figure_frame = tk.Frame(master=self.root)
-        self.figure_frame.pack(side=tk.TOP)
-        self.plotter = AirfoilPlotter(self.figure_frame)
+    def initialize_figures(self):
+        figure_frame = tk.Frame(master=self.root)
+        figure_frame.pack(side=tk.TOP)
+
+        self.figure_control = ttk.Notebook(master=figure_frame)
+        self.figure_control.pack(side=tk.TOP)
+
+        dimensions_plotter_frame = tk.Frame(master=self.figure_control)
+        self.plotters["Dimensions"] = TailPlotter(dimensions_plotter_frame)
+        self.figure_control.add(dimensions_plotter_frame, text="Dimensions")
+
+        airfoil_plotter_frame = tk.Frame(master=self.figure_control)
+        self.plotters["Airfoil"] = AirfoilPlotter(airfoil_plotter_frame)
+        self.figure_control.add(airfoil_plotter_frame, text="Airfoil")
 
         refresh_button = tk.Button(
-            master=self.figure_frame,
+            master=figure_frame,
             text="Refresh",
             width=GUI_BUTTON_WIDTH,
             command=lambda: self.refresh_plot()
         )
         refresh_button.pack(side=tk.TOP, anchor=tk.NW)
 
-    def initialize_design_control_frame(self):
-
-        # Settings
+    def initialize_design_control_frames(self):
         design_control_frame = tk.Frame(master=self.root)
         design_control_frame.pack(side=tk.BOTTOM, anchor=tk.NE)
 
-        # Digit Settings
-        naca_digit_frame = tk.Frame(
+        airfoil_design_parent = tk.Frame(
             master=design_control_frame,
             highlightbackground="grey",
-            highlightthickness=1)
-        naca_digit_frame.pack(side=tk.RIGHT)
-        airfoil_design_frame = AirfoilDesignControlFrame(naca_digit_frame)
-        self.plot_frames["airfoil frame"] = airfoil_design_frame
+            highlightthickness=1
+        )
+        airfoil_design_parent.pack(side=tk.RIGHT)
+        airfoil_design_frame = AirfoilDesignControlFrame(airfoil_design_parent)
+        self.design_frames["Airfoil"] = airfoil_design_frame
+
+        tail_dimensions_parent = tk.Frame(
+            master=design_control_frame,
+            highlightbackground="grey",
+            highlightthickness=1
+        )
+        tail_dimensions_parent.pack(side=tk.RIGHT)
+        tail_dimensions = TailDesignControlFrame(tail_dimensions_parent)
+        self.design_frames["Dimensions"] = tail_dimensions
 
 
 def main():
