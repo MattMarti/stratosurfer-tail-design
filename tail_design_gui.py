@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from abc import ABC, abstractmethod
 
 import numpy as np
 
@@ -19,6 +20,35 @@ def apply_pretty_plot_settings(ax):
     ax.grid(which="major")
     ax.minorticks_on()
     ax.grid(which="minor", linestyle="--", linewidth=0.3)
+
+
+class Plotter(ABC):
+
+    def __init__(self, parent_frame:tk.Frame):
+        self.fig = Figure(figsize=(5, 4), dpi=100)
+        self.ax = self.fig.add_subplot(111)
+
+        canvas = FigureCanvasTkAgg(self.fig, master=parent_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        toolbar = NavigationToolbar2Tk(canvas, parent_frame, pack_toolbar=False)
+        toolbar.update()
+        toolbar.pack(side=tk.TOP, fill=tk.X)
+
+    @abstractmethod
+    def refresh_plot(self, design_frames:dict):
+        ...
+
+
+class PositionalDesignControlFrame:
+    pass
+
+
+class StaticMarginPlotter(Plotter):
+
+    def refresh_plot(self, design_frames):
+        pass
 
 
 class AirfoilDesignControlFrame:
@@ -77,24 +107,11 @@ class AirfoilDesignControlFrame:
         return xl, yl
 
 
-class AirfoilPlotter:
+class AirfoilPlotter(Plotter):
 
-    def __init__(self, parent_frame):
-        self.fig = Figure(figsize=(5, 4), dpi=100)
-        self.ax = self.fig.add_subplot(111)
-
-        canvas = FigureCanvasTkAgg(self.fig, master=parent_frame)
-        canvas.draw()
-
-        toolbar = NavigationToolbar2Tk(canvas, parent_frame, pack_toolbar=False)
-        toolbar.update()
-
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-        toolbar.pack(side=tk.TOP, fill=tk.X)
-
-    def refresh_plot(self, airfoil_design_frame):
-        xu, yu = airfoil_design_frame.get_upper_surface()
-        xl, yl = airfoil_design_frame.get_lower_surface()
+    def refresh_plot(self, design_frames):
+        xu, yu = design_frames["Airfoil"].get_upper_surface()
+        xl, yl = design_frames["Airfoil"].get_lower_surface()
 
         self.ax.clear()
         self.ax.plot(np.concatenate((xu,xl)), np.concatenate((yu, yl), 0))
@@ -169,23 +186,10 @@ class TailDesignControlFrame:
         return np.array(x), np.array(y)
 
 
-class TailPlotter:
+class TailPlotter(Plotter):
 
-    def __init__(self, parent_frame):
-        self.fig = Figure(figsize=(5, 4), dpi=100)
-        self.ax = self.fig.add_subplot(111)
-
-        canvas = FigureCanvasTkAgg(self.fig, master=parent_frame)
-        canvas.draw()
-
-        toolbar = NavigationToolbar2Tk(canvas, parent_frame, pack_toolbar=False)
-        toolbar.update()
-
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-        toolbar.pack(side=tk.TOP, fill=tk.X)
-
-    def refresh_plot(self, design_frame:TailDesignControlFrame):
-        x, y = design_frame.get_surface()
+    def refresh_plot(self, design_frames):
+        x, y = design_frames["Dimensions"].get_surface()
 
         self.ax.clear()
         self.ax.plot(x, y, 0)
@@ -219,8 +223,7 @@ class GuiManager:
             tab = self.figure_control.tab(tab_index)
             tab_name = tab["text"]
             plotter = self.plotters[tab_name]
-            design_frame = self.design_frames[tab_name]
-            plotter.refresh_plot(design_frame)
+            plotter.refresh_plot(self.design_frames)
 
     def initialize_figures(self):
         figure_frame = tk.Frame(master=self.root)
