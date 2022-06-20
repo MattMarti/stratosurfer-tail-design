@@ -42,7 +42,57 @@ class Plotter(ABC):
 
 
 class PositionalDesignControlFrame:
-    pass
+
+    def __init__(self, parent_frame):
+        naca_digit_label = tk.Label(
+            master=parent_frame,
+            text="Tail Position")
+        naca_digit_label.pack(side=tk.TOP)
+
+        self.entries = {}
+        self.add_entry(parent_frame, "Longitudinal pos (mm)", "791")
+        self.add_entry(parent_frame, "Lateral pos (mm)", "25")
+        self.add_entry(parent_frame, "Vertical pos (mm)", "42")
+        self.add_entry(parent_frame, "Design AoA (deg)", "0")
+        self.add_entry(parent_frame, "Dihedrial (deg)", "90")
+
+    def add_entry(self, parent_frame, label_text, default_value:str):
+        frame = tk.Frame(master=parent_frame)
+        frame.pack(side=tk.TOP, expand=True)
+
+        label = tk.Label(
+            master=frame,
+            text=label_text,
+            width=2*GUI_BUTTON_WIDTH)
+        label.pack(side=tk.LEFT)
+
+        entry = tk.Entry(
+            master=frame,
+            width=round(GUI_BUTTON_WIDTH/2))
+        entry.pack(side=tk.RIGHT)
+        entry.insert(0, default_value)
+
+        self.entries[label_text] = entry
+
+    @property
+    def pos(self):
+        return np.array([
+            float(self.entries["Lateral Loc (mm)"].get()),
+            - float(self.entries["Longitudinal Loc (mm)"].get()),
+            float(self.entries["Vertical Loc (mm)"].get()),
+        ])
+
+    @property
+    def base_chord(self):
+        return float(self.entries["Base chord"].get())
+
+    @property
+    def tip_chord(self):
+        return float(self.entries["Tip chord"].get())
+
+    @property
+    def sweep(self):
+        return float(self.entries["Sweep"].get())
 
 
 class StaticMarginPlotter(Plotter):
@@ -269,6 +319,16 @@ class GuiManager:
         tail_dimensions_parent.pack(side=tk.RIGHT)
         tail_dimensions = TailDesignControlFrame(tail_dimensions_parent)
         self.design_frames["Dimensions"] = tail_dimensions
+
+        positional_parent = tk.Frame(
+            master=design_control_frame,
+            highlightbackground="grey",
+            highlightthickness=1
+        )
+        positional_parent.pack(side=tk.RIGHT)
+        positional = PositionalDesignControlFrame(positional_parent)
+        self.design_frames["Positional"] = positional
+
 
 
 def main():
