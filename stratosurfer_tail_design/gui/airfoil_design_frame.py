@@ -14,7 +14,8 @@ class AirfoilDesignFrame:
         p = "p"
         t = "t"
 
-    def __init__(self, parent_frame:tk.Frame, design_data:DesignData):
+    def __init__(self, gui_handle, parent_frame:tk.Frame, design_data:DesignData):
+        self.gui_handle = gui_handle
         self.airfoil_design_data = design_data.airfoil
 
         naca_digit_label = tk.Label(
@@ -38,11 +39,15 @@ class AirfoilDesignFrame:
             width=round(ButtonSizes.GUI_BUTTON_WIDTH/2))
         label.pack(side=tk.LEFT)
 
+        string_var = tk.StringVar()
+        string_var.set(default_value)
+        string_var.trace("w", lambda name, index, mode, sv=string_var: self.gui_handle.refresh_info_display())
+
         entry = tk.Entry(
             master=frame,
-            width=round(ButtonSizes.GUI_BUTTON_WIDTH/2))
+            width=round(ButtonSizes.GUI_BUTTON_WIDTH/2),
+            textvariable=string_var)
         entry.pack(side=tk.RIGHT)
-        entry.insert(0, default_value)
 
         self.entries[label_enum] = entry
 

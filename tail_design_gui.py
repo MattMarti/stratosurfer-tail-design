@@ -92,7 +92,7 @@ class GuiManager:
             highlightthickness=1
         )
         airfoil_design_parent.pack(side=tk.RIGHT)
-        self.design_frames["Airfoil"] = AirfoilDesignFrame(airfoil_design_parent, self.design_data)
+        self.design_frames["Airfoil"] = AirfoilDesignFrame(self, airfoil_design_parent, self.design_data)
 
         tail_dimensions_parent = tk.Frame(
             master=design_control_frame,
@@ -100,7 +100,7 @@ class GuiManager:
             highlightthickness=1
         )
         tail_dimensions_parent.pack(side=tk.RIGHT)
-        self.design_frames["Dimensions"] = TailDimensionsDesignFrame(tail_dimensions_parent, self.design_data)
+        self.design_frames["Dimensions"] = TailDimensionsDesignFrame(self, tail_dimensions_parent, self.design_data)
 
         positional_parent = tk.Frame(
             master=design_control_frame,
@@ -108,7 +108,7 @@ class GuiManager:
             highlightthickness=1
         )
         positional_parent.pack(side=tk.RIGHT)
-        self.design_frames["Positional"] = TailPositionDesignFrame(positional_parent, self.design_data)
+        self.design_frames["Positional"] = TailPositionDesignFrame(self, positional_parent, self.design_data)
 
 
 def main():

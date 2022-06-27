@@ -16,7 +16,8 @@ class TailPositionDesignFrame:
         design_aoa = "Design AoA (deg)"
         dihedrial = "Dihedrial (deg)"
 
-    def __init__(self, parent_frame:tk.Frame, design_data:DesignData):
+    def __init__(self, gui_handle, parent_frame:tk.Frame, design_data:DesignData):
+        self.gui_handle = gui_handle
         self.tail_position = design_data.tail_position
 
         design_frame_label = tk.Label(
@@ -42,11 +43,15 @@ class TailPositionDesignFrame:
             width=2*ButtonSizes.GUI_BUTTON_WIDTH)
         label.pack(side=tk.LEFT)
 
+        string_var = tk.StringVar()
+        string_var.set(default_value)
+        string_var.trace("w", lambda name, index, mode, sv=string_var: self.gui_handle.refresh_info_display())
+
         entry = tk.Entry(
             master=frame,
-            width=round(ButtonSizes.GUI_BUTTON_WIDTH/2))
+            width=round(ButtonSizes.GUI_BUTTON_WIDTH/2),
+            textvariable=string_var)
         entry.pack(side=tk.RIGHT)
-        entry.insert(0, default_value)
 
         self.entries[label_enum] = entry
 
