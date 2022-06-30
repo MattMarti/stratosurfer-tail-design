@@ -41,7 +41,6 @@ class AirfoilDesignFrame:
 
         string_var = tk.StringVar()
         string_var.set(default_value)
-        string_var.trace("w", lambda name, index, mode, sv=string_var: self.gui_handle.refresh_info_display())
 
         entry = tk.Entry(
             master=frame,
