@@ -48,13 +48,12 @@ class TailPositionDesignFrame:
 
         entry = tk.Entry(
             master=frame,
-            width=round(ButtonSizes.GUI_BUTTON_WIDTH/2),
-            textvariable=string_var)
+            width=round(ButtonSizes.GUI_BUTTON_WIDTH/2))
         entry.pack(side=tk.RIGHT)
 
         self.entries[label_enum] = entry
 
-    def update_design_data(self):
+    def read_design_data(self):
         Options = TailPositionDesignFrame.Options
         self.tail_position.pos = np.array([
             float(self.entries[Options.lateral_pos].get()),
@@ -63,3 +62,14 @@ class TailPositionDesignFrame:
         ])
         self.tail_position.aoa = float(self.entries[Options.design_aoa].get())
         self.tail_position.dihedral = float(self.entries[Options.dihedrial].get())
+
+    def update_entry_boxes(self):
+        Options = TailPositionDesignFrame.Options
+        for option in Options:
+            self.entries[option].delete(0, tk.END)
+        self.entries[Options.longitudinal_pos].insert(0, f"{-self.tail_position.pos[1]:.0f}")
+        self.entries[Options.lateral_pos].insert(0, f"{self.tail_position.pos[0]:.0f}")
+        self.entries[Options.vertical_pos].insert(0, f"{self.tail_position.pos[2]:.0f}")
+        self.entries[Options.design_aoa].insert(0, f"{self.tail_position.aoa:.0f}")
+        self.entries[Options.dihedrial].insert(0, f"{self.tail_position.dihedral:.0f}")
+

@@ -1,16 +1,20 @@
+import json
+
 import yaml
 import numpy as np
+
+from .design_data import DesignData
 
 TAIL_DESIGN_FILE = "data/tail-design.json"
 
 def load_tail_design():
     with open(TAIL_DESIGN_FILE, "r") as fid:
-        return yaml.load(fid)
+        return DesignData.from_dict(json.load(fid))
 
 
-def save_tail_design(tail_design:dict):
+def save_tail_design(tail_design:DesignData):
     with open(TAIL_DESIGN_FILE, "w") as fid:
-        yaml.dump(tail_design, fid)
+        json.dump(tail_design.to_dict(), fid, indent=4)
 
 
 def load_airplane_config():

@@ -1,0 +1,22 @@
+{
+    "airfoil": {
+        "m": 0,
+        "p": 5,
+        "t": 12
+    },
+    "tail_dimensions": {
+        "span": 250.0,
+        "base_chord": 200.0,
+        "tip_chord": 150.0,
+        "sweep": 50.0
+    },
+    "tail_position": {
+        "pos": [
+            25.0,
+            -791.0,
+            42.0
+        ],
+        "aoa": 0.0,
+        "dihedral": 90.0
+    }
+}

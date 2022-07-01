@@ -50,8 +50,16 @@ class AirfoilDesignFrame:
 
         self.entries[label_enum] = entry
 
-    def update_design_data(self):
+    def read_design_data(self):
         Options = AirfoilDesignFrame.Options
         self.airfoil_design_data.m = int(self.entries[Options.m].get())
         self.airfoil_design_data.p = int(self.entries[Options.p].get())
         self.airfoil_design_data.t = int(self.entries[Options.t].get())
+
+    def update_entry_boxes(self):
+        Options = AirfoilDesignFrame.Options
+        for option in Options:
+            self.entries[option].delete(0, tk.END)
+        self.entries[Options.m].insert(0, f"{self.airfoil_design_data.m}")
+        self.entries[Options.p].insert(0, f"{self.airfoil_design_data.p}")
+        self.entries[Options.t].insert(0, f"{self.airfoil_design_data.t}")

@@ -11,6 +11,7 @@ from stratosurfer_tail_design.gui import (
     TailDimensionsDesignFrame,
     TailPositionDesignFrame,
 )
+import stratosurfer_tail_design.data_loading as data_loading
 
 class GuiManager:
 
@@ -18,30 +19,15 @@ class GuiManager:
         self.root = tk.Tk()
         self.root.title("Stratosurfer Tail Design Tool")
 
-        self.design_data = design_data.DesignData(
-            design_data.Airfoil(
-                m = 0,
-                p = 5,
-                t = 12
-            ),
-            design_data.TailDimensions(
-                span = 250,
-                base_chord=200,
-                tip_chord=150,
-                sweep=50
-            ),
-            design_data.TailPosition(
-                pos = np.array([25, -791, 42]),
-                aoa = 0,
-                dihedral = 90
-            )
-        )
+        self.design_data = None
+        self.load_design()
 
         self.plot_frames = {}
         self.design_frames = {}
         self.initialize_design_control_frames()
         self.initialize_figures()
 
+        self.update_entry_boxes()
         self.refresh_info_display()
 
     def run(self):
@@ -51,13 +37,29 @@ class GuiManager:
         self.root.quit()
         self.root.destroy()
 
+    def load_design(self):
+        self.design_data = data_loading.load_tail_design()
+        
+    def load_design_and_refresh(self):
+        self.load_design()
+        self.update_entry_boxes()
+        self.refresh_info_display()
+
+    def save_design(self):
+        data_loading.save_tail_design(self.design_data)
+
+    def update_entry_boxes(self):
+        for design_control in self.design_frames.values():
+            design_control.update_entry_boxes()
+
     def refresh_info_display(self):
-        for _, design_frame in self.design_frames.items():
-            design_frame.update_design_data()
+        for design_frame in self.design_frames.values():
+            design_frame.read_design_data()
         for tab_index in self.figure_control.tabs():
             tab = self.figure_control.tab(tab_index)
             tab_name = tab["text"]
             self.plot_frames[tab_name].refresh()
+        self.update_entry_boxes()
 
     def initialize_figures(self):
         figure_frame = tk.Frame(master=self.root)
@@ -81,6 +83,22 @@ class GuiManager:
             command=lambda: self.refresh_info_display()
         )
         refresh_button.pack(side=tk.TOP, anchor=tk.NW)
+
+        save_design_button = tk.Button(
+            master=figure_frame,
+            text="Save design",
+            width=ButtonSizes.GUI_BUTTON_WIDTH,
+            command=lambda: self.save_design()
+        )
+        save_design_button.pack(side=tk.TOP, anchor=tk.NW)
+
+        load_design_button = tk.Button(
+            master=figure_frame,
+            text="Load design",
+            width=ButtonSizes.GUI_BUTTON_WIDTH,
+            command=lambda: self.load_design_and_refresh()
+        )
+        load_design_button.pack(side=tk.TOP, anchor=tk.NW)
 
     def initialize_design_control_frames(self):
         design_control_frame = tk.Frame(master=self.root)

@@ -54,7 +54,7 @@ class TailDimensionsDesignFrame:
 
         self.entries[label_enum] = entry
 
-    def update_design_data(self):
+    def read_design_data(self):
         Options = TailDimensionsDesignFrame.Options
         self.tail_dimensions_data.span = float(self.entries[Options.span].get())
         self.tail_dimensions_data.base_chord = float(self.entries[Options.base_chord].get())
@@ -77,3 +77,12 @@ class TailDimensionsDesignFrame:
             0,
         ]
         return np.array(x), np.array(y)
+
+    def update_entry_boxes(self):
+        Options = TailDimensionsDesignFrame.Options
+        for option in Options:
+            self.entries[option].delete(0, tk.END)
+        self.entries[Options.span].insert(0, f"{self.tail_dimensions_data.span}")
+        self.entries[Options.base_chord].insert(0, f"{self.tail_dimensions_data.base_chord}")
+        self.entries[Options.tip_chord].insert(0, f"{self.tail_dimensions_data.tip_chord}")
+        self.entries[Options.sweep].insert(0, f"{self.tail_dimensions_data.sweep}")
