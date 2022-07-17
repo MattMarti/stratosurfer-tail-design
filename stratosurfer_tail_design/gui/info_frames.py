@@ -10,7 +10,7 @@ from matplotlib.backends.backend_tkagg import (
 
 from stratosurfer_tail_design import DesignData
 from stratosurfer_tail_design.submodules.airfoil_defs.naca_four_digit_airfoil import NacaFourDigitAirfoil
-
+from . import ButtonSizes
 
 def apply_pretty_plot_settings(ax:Axes):
     ax.grid(which="major")
@@ -21,6 +21,19 @@ def apply_pretty_plot_settings(ax:Axes):
 class InfoFrameBase(ABC):
 
     def __init__(self, parent_frame:tk.Frame, design_data:DesignData):
+        self.parent_frame = parent_frame
+        self.design_data = design_data
+
+    @abstractmethod
+    def refresh(self):
+        ...
+
+
+class PlotterFrameBase(InfoFrameBase):
+
+    def __init__(self, parent_frame:tk.Frame, design_data:DesignData):
+        super().__init__(parent_frame, design_data)
+
         self.fig = Figure(figsize=(5, 4), dpi=100)
         self.ax = self.fig.add_subplot(111)
 
@@ -32,16 +45,10 @@ class InfoFrameBase(ABC):
         toolbar.update()
         toolbar.pack(side=tk.TOP, fill=tk.X)
 
-        self.design_data = design_data
 
-    @abstractmethod
-    def refresh(self):
-        ...
+class DimensionsPlotFrame(PlotterFrameBase):
 
-
-class DimensionsPlotFrame(InfoFrameBase):
-
-    def __get_surface(self):
+    def _get_surface(self):
         td = self.design_data.tail_dimensions
         x = [
             0,
@@ -60,7 +67,7 @@ class DimensionsPlotFrame(InfoFrameBase):
         return np.array(x), np.array(y)
 
     def refresh(self):
-        x, y = self.__get_surface()
+        x, y = self._get_surface()
 
         self.ax.clear()
         self.ax.plot(x, y, 0)
@@ -69,18 +76,18 @@ class DimensionsPlotFrame(InfoFrameBase):
         self.fig.canvas.draw()
 
 
-class AirfoilPlotFrame(InfoFrameBase):
+class AirfoilPlotFrame(PlotterFrameBase):
 
     def refresh(self):
-        xu, yu = self.__get_upper_surface()
-        xl, yl = self.__get_lower_surface()
+        xu, yu = self._get_upper_surface()
+        xl, yl = self._get_lower_surface()
         self.ax.clear()
         self.ax.plot(np.concatenate((xu,xl)), np.concatenate((yu, yl), 0))
         self.ax.axis("equal")
         apply_pretty_plot_settings(self.ax)
         self.fig.canvas.draw()
 
-    def __get_upper_surface(self):
+    def _get_upper_surface(self):
         airfoil = NacaFourDigitAirfoil(
             self.design_data.airfoil.m,
             self.design_data.airfoil.p,
@@ -90,7 +97,7 @@ class AirfoilPlotFrame(InfoFrameBase):
         xu, yu = airfoil.get_upper(xu)
         return xu, yu
 
-    def __get_lower_surface(self):
+    def _get_lower_surface(self):
         airfoil = NacaFourDigitAirfoil(
             self.design_data.airfoil.m,
             self.design_data.airfoil.p,
@@ -103,6 +110,63 @@ class AirfoilPlotFrame(InfoFrameBase):
 
 class StaticMarginInfoFrame(InfoFrameBase):
 
+    def __init__(self, parent_frame:tk.Frame, design_data:DesignData):
+        super().__init__(parent_frame, design_data)
+        self.display_variables = {}
+
+        tk.Label(
+            master=self.parent_frame,
+            text="Conditions for Static Stabilty",
+            width=ButtonSizes.GUI_BUTTON_WIDTH * 4,
+            font=("bold",),
+        ).pack(side=tk.TOP)
+
+        self._add_output("Moment Coefficient (0 aoa)")
+        self._add_output("Moment Coefficient Positive?")
+        self._add_output("C_M Derivative (0 aoa)")
+        self._add_output("C_M Derivative Negative?")
+
+        tk.Label(
+            master=self.parent_frame,
+            text="Additional Information",
+            width=ButtonSizes.GUI_BUTTON_WIDTH * 4,
+            font=("bold",),
+        ).pack(side=tk.TOP)
+
+        self._add_output("Volume Coefficient")
+        self._add_output("Horizontal Volume Coef")
+        self._add_output("Vertical Volume Coef")
+        self._add_output("Static Margin")
+
+    def _add_output(self, name):
+        subframe = tk.Frame(master=self.parent_frame)
+        subframe.pack(side=tk.TOP)
+
+        label = tk.Label(
+            master=subframe,
+            text=name,
+            width=round(ButtonSizes.GUI_BUTTON_WIDTH * 2.5),
+        )
+        label.pack(side=tk.LEFT)
+
+        string_var = tk.StringVar()
+        string_var.set("0")
+
+        value_label = tk.Label(
+            master=subframe,
+            width=ButtonSizes.GUI_BUTTON_WIDTH,
+            textvariable=string_var,
+        )
+        value_label.pack(side=tk.RIGHT)
+
+        self.display_variables[name] = string_var
+
     def refresh(self):
-        pass
+        
+        static_margin = self._calc_static_margin()
+        
+        self.display_variables["Static Margin"].set(f"{static_margin:.3f}")
+
+    def _calc_static_margin(self):
+        return 0
 

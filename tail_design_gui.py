@@ -76,6 +76,10 @@ class GuiManager:
         self.plot_frames["Airfoil"] = info_frames.AirfoilPlotFrame(airfoil_plotter_frame, self.design_data)
         self.figure_control.add(airfoil_plotter_frame, text="Airfoil")
 
+        static_margin_frame = tk.Frame(master=self.figure_control)
+        self.plot_frames["Static Margin"] = info_frames.StaticMarginInfoFrame(static_margin_frame, self.design_data)
+        self.figure_control.add(static_margin_frame, text= "Static Margin")
+
         refresh_button = tk.Button(
             master=figure_frame,
             text="Refresh",
