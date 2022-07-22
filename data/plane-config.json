@@ -15,7 +15,13 @@
     {
         "wingspan mm" : 1500,
         "chord mm" : 213.5,
-        "wing area dmsq": 27.4
+        "wing area dmsq": 27.4,
+        "airfoil" : 
+        {
+            "m" : 4,
+            "p" : 4,
+            "t" : 10
+        }
     },
     "mass_g": 1800,
     "wingspan_mm": 1500
