@@ -24,5 +24,15 @@
         "c1": 0.3,
         "c2": 0.65,
         "c3": 1.0
+    },
+    "servo_parameters": {
+        "x": 120.0,
+        "y": 100.0,
+        "ctrl_horn_len": 75.0
+    },
+    "elevator_flap": {
+        "span": 150.0,
+        "width": 40.0,
+        "span_begin": 50.0
     }
 }

@@ -82,6 +82,57 @@ class DimensionsPlotFrame(InfoFrameBase):
         ]
         return x, y
 
+    def _get_servo_points(self):
+        sp = self.design_data.servo_parameters
+
+        servo_width = 25
+        servo_height = 20
+        control_horn_x_offset = 10
+        control_horn_y_offset = 5
+
+        x = [
+            sp.x,
+            sp.x,
+            sp.x + servo_width,
+            sp.x + servo_width,
+            sp.x,
+            np.nan,
+            sp.x + control_horn_x_offset,
+            sp.x + control_horn_x_offset + sp.ctrl_horn_len,
+        ]
+        y = [
+            sp.y,
+            sp.y + servo_height,
+            sp.y + servo_height,
+            sp.y,
+            sp.y,
+            np.nan,
+            sp.y + servo_height + control_horn_y_offset,
+            sp.y + servo_height + control_horn_y_offset,
+        ]
+        return x, y
+
+    def _get_elevator_flap_points(self):
+        td = self.design_data.tail_dimensions
+        ef = self.design_data.elevator_flap
+        slope = td.sweep / td.span
+        x = [
+            td.base_chord,
+            td.base_chord - ef.width,
+            td.base_chord - ef.width,
+            td.base_chord,
+        ]
+        y = [
+            ef.span_begin,
+            ef.span_begin,
+            ef.span_begin + ef.span,
+            ef.span_begin + ef.span,
+        ]
+        for i in range(len(x)):
+            x[i] += y[i] * slope
+        return x, y
+
+
     def refresh(self):
         self.ax.clear()
 
@@ -90,6 +141,12 @@ class DimensionsPlotFrame(InfoFrameBase):
 
         x_flat, y_flat = self._get_flat_constrained_surface()
         self.ax.plot(x_flat, y_flat)
+
+        x_servo, y_servo = self._get_servo_points()
+        self.ax.plot(x_servo, y_servo, color="red")
+
+        x_ef, y_ef = self._get_elevator_flap_points()
+        self.ax.plot(x_ef, y_ef)
 
         apply_pretty_plot_settings(self.ax)
         self.ax.axis("equal")

@@ -32,8 +32,6 @@ class FlatSection:
 class ServoParameters:
     x: float
     y: float
-    ctrl_horn_x: float
-    ctrl_horn_y: float
     ctrl_horn_len: float
 
 
@@ -65,8 +63,6 @@ class DesignData:
         servo_parameters_dict = raw_data.get("servo_parameters", {
                 "x": 0,
                 "y": 0,
-                "ctrl_horn_x": 0,
-                "ctrl_horn_y": 0,
                 "ctrl_horn_len": 100,
             }
         )
@@ -102,8 +98,6 @@ class DesignData:
             servo_parameters = ServoParameters(
                 x = servo_parameters_dict["x"],
                 y = servo_parameters_dict["y"],
-                ctrl_horn_x = servo_parameters_dict["ctrl_horn_x"],
-                ctrl_horn_y = servo_parameters_dict["ctrl_horn_y"],
                 ctrl_horn_len = servo_parameters_dict["ctrl_horn_len"]
             ),
             elevator_flap = ElevatorFlap(
@@ -140,8 +134,6 @@ class DesignData:
             "servo_parameters": {
                 "x": self.servo_parameters.x,
                 "y": self.servo_parameters.y,
-                "ctrl_horn_x": self.servo_parameters.ctrl_horn_x,
-                "ctrl_horn_y": self.servo_parameters.ctrl_horn_y,
                 "ctrl_horn_len": self.servo_parameters.ctrl_horn_len,
             },
             "elevator_flap": {

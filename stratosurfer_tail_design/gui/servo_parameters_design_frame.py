@@ -10,8 +10,6 @@ from stratosurfer_tail_design import DesignData
 class Options(Enum):
     x = "x"
     y = "y"
-    ctrl_horn_x = "ctrl_horn_x"
-    ctrl_horn_y = "ctrl_horn_y"
     ctrl_horn_len = "ctrl_horn_len"
 
 
@@ -29,8 +27,6 @@ class ServoParametersDesignFrame:
         self.entries = {}
         self._add_entry(parent_frame, Options.x, f"{self.servo_parameters.x}")
         self._add_entry(parent_frame, Options.y, f"{self.servo_parameters.y}")
-        self._add_entry(parent_frame, Options.ctrl_horn_x, f"{self.servo_parameters.ctrl_horn_x}")
-        self._add_entry(parent_frame, Options.ctrl_horn_y, f"{self.servo_parameters.ctrl_horn_y}")
         self._add_entry(parent_frame, Options.ctrl_horn_len, f"{self.servo_parameters.ctrl_horn_len}")
 
 
@@ -58,8 +54,6 @@ class ServoParametersDesignFrame:
     def read_design_data(self):
         self.servo_parameters.x = float(self.entries[Options.x].get())
         self.servo_parameters.y = float(self.entries[Options.y].get())
-        self.servo_parameters.ctrl_horn_x = float(self.entries[Options.ctrl_horn_x].get())
-        self.servo_parameters.ctrl_horn_y = float(self.entries[Options.ctrl_horn_y].get())
         self.servo_parameters.ctrl_horn_len = float(self.entries[Options.ctrl_horn_len].get())
 
 
@@ -68,6 +62,4 @@ class ServoParametersDesignFrame:
             self.entries[option].delete(0, tk.END)
         self.entries[Options.x].insert(0, f"{self.servo_parameters.x}")
         self.entries[Options.y].insert(0, f"{self.servo_parameters.y}")
-        self.entries[Options.ctrl_horn_x].insert(0, f"{self.servo_parameters.ctrl_horn_x}")
-        self.entries[Options.ctrl_horn_y].insert(0, f"{self.servo_parameters.ctrl_horn_y}")
         self.entries[Options.ctrl_horn_len].insert(0, f"{self.servo_parameters.ctrl_horn_len}")
