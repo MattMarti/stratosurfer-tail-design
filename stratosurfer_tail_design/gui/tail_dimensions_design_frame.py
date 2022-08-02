@@ -27,13 +27,13 @@ class TailDimensionsDesignFrame:
 
         Options = TailDimensionsDesignFrame.Options
         self.entries = {}
-        self.__add_entry(parent_frame, Options.span, f"{self.tail_dimensions_data.span}")
-        self.__add_entry(parent_frame, Options.base_chord, f"{self.tail_dimensions_data.base_chord}")
-        self.__add_entry(parent_frame, Options.tip_chord, f"{self.tail_dimensions_data.tip_chord}")
-        self.__add_entry(parent_frame, Options.sweep, f"{self.tail_dimensions_data.sweep}")
+        self._add_entry(parent_frame, Options.span, f"{self.tail_dimensions_data.span}")
+        self._add_entry(parent_frame, Options.base_chord, f"{self.tail_dimensions_data.base_chord}")
+        self._add_entry(parent_frame, Options.tip_chord, f"{self.tail_dimensions_data.tip_chord}")
+        self._add_entry(parent_frame, Options.sweep, f"{self.tail_dimensions_data.sweep}")
 
 
-    def __add_entry(self, parent_frame:tk.Frame, label_enum, default_value:str):
+    def _add_entry(self, parent_frame:tk.Frame, label_enum, default_value:str):
         frame = tk.Frame(master=parent_frame)
         frame.pack(side=tk.TOP, expand=True)
 

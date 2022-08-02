@@ -7,4 +7,4 @@ class ButtonSizes:
 
 from .airfoil_design_frame import AirfoilDesignFrame
 from .tail_dimensions_design_frame import TailDimensionsDesignFrame
-from .tail_position_design_frame import TailPositionDesignFrame
+from .flat_section_design_frame import FlatSectionDesignFrame

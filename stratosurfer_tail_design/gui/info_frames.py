@@ -29,7 +29,7 @@ class InfoFrameBase(ABC):
         ...
 
 
-class PlotterFrameBase(InfoFrameBase):
+class DimensionsPlotFrame(InfoFrameBase):
 
     def __init__(self, parent_frame:tk.Frame, design_data:DesignData):
         super().__init__(parent_frame, design_data)
@@ -44,9 +44,6 @@ class PlotterFrameBase(InfoFrameBase):
         toolbar = NavigationToolbar2Tk(canvas, parent_frame, pack_toolbar=False)
         toolbar.update()
         toolbar.pack(side=tk.TOP, fill=tk.X)
-
-
-class DimensionsPlotFrame(PlotterFrameBase):
 
     def _get_surface(self):
         td = self.design_data.tail_dimensions
@@ -66,107 +63,107 @@ class DimensionsPlotFrame(PlotterFrameBase):
         ]
         return np.array(x), np.array(y)
 
+    def _get_flat_constrained_surface(self):
+        td = self.design_data.tail_dimensions
+        fs = self.design_data.flat_section
+        x = [
+            td.base_chord * fs.c1,
+            td.sweep + (td.base_chord - td.tip_chord) + td.tip_chord * fs.c1,
+            np.nan,
+            td.base_chord * fs.c2,
+            td.sweep + (td.base_chord - td.tip_chord) + td.tip_chord * fs.c2,
+        ]
+        y = [
+            0,
+            td.span,
+            np.nan,
+            0,
+            td.span,
+        ]
+        return x, y
+
     def refresh(self):
+        self.ax.clear()
+
         x, y = self._get_surface()
+        self.ax.plot(x, y, color="b")
 
-        self.ax.clear()
-        self.ax.plot(x, y, 0)
+        x_flat, y_flat = self._get_flat_constrained_surface()
+        self.ax.plot(x_flat, y_flat)
+
         apply_pretty_plot_settings(self.ax)
         self.ax.axis("equal")
         self.fig.canvas.draw()
 
 
-class AirfoilPlotFrame(PlotterFrameBase):
-
-    def refresh(self):
-        xu, yu = self._get_upper_surface()
-        xl, yl = self._get_lower_surface()
-        self.ax.clear()
-        self.ax.plot(np.concatenate((xu,xl)), np.concatenate((yu, yl), 0))
-        self.ax.axis("equal")
-        apply_pretty_plot_settings(self.ax)
-        self.fig.canvas.draw()
-
-    def _get_upper_surface(self):
-        airfoil = NacaFourDigitAirfoil(
-            self.design_data.airfoil.m,
-            self.design_data.airfoil.p,
-            self.design_data.airfoil.t
-        )
-        xu = np.linspace(1, 0, 10000)
-        xu, yu = airfoil.get_upper(xu)
-        return xu, yu
-
-    def _get_lower_surface(self):
-        airfoil = NacaFourDigitAirfoil(
-            self.design_data.airfoil.m,
-            self.design_data.airfoil.p,
-            self.design_data.airfoil.t
-        )
-        xl = np.linspace(0, 1, 10000)
-        xl, yl = airfoil.get_lower(xl)
-        return xl, yl
-
-
-class StaticMarginInfoFrame(InfoFrameBase):
+class AirfoilPlotFrame(InfoFrameBase):
 
     def __init__(self, parent_frame:tk.Frame, design_data:DesignData):
         super().__init__(parent_frame, design_data)
-        self.display_variables = {}
 
-        tk.Label(
-            master=self.parent_frame,
-            text="Conditions for Static Stabilty",
-            width=ButtonSizes.GUI_BUTTON_WIDTH * 4,
-            font=("bold",),
-        ).pack(side=tk.TOP)
+        self.fig = Figure(figsize=(5, 4), dpi=100)
+        self.airfoil_ax = self.fig.add_subplot(2, 1, 1)
+        self.flatness_ax = self.fig.add_subplot(2, 1, 2)
 
-        self._add_output("Moment Coefficient (0 aoa)")
-        self._add_output("Moment Coefficient Positive?")
-        self._add_output("C_M Derivative (0 aoa)")
-        self._add_output("C_M Derivative Negative?")
+        canvas = FigureCanvasTkAgg(self.fig, master=parent_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        tk.Label(
-            master=self.parent_frame,
-            text="Additional Information",
-            width=ButtonSizes.GUI_BUTTON_WIDTH * 4,
-            font=("bold",),
-        ).pack(side=tk.TOP)
-
-        self._add_output("Volume Coefficient")
-        self._add_output("Horizontal Volume Coef")
-        self._add_output("Vertical Volume Coef")
-        self._add_output("Static Margin")
-
-    def _add_output(self, name):
-        subframe = tk.Frame(master=self.parent_frame)
-        subframe.pack(side=tk.TOP)
-
-        label = tk.Label(
-            master=subframe,
-            text=name,
-            width=round(ButtonSizes.GUI_BUTTON_WIDTH * 2.5),
-        )
-        label.pack(side=tk.LEFT)
-
-        string_var = tk.StringVar()
-        string_var.set("0")
-
-        value_label = tk.Label(
-            master=subframe,
-            width=ButtonSizes.GUI_BUTTON_WIDTH,
-            textvariable=string_var,
-        )
-        value_label.pack(side=tk.RIGHT)
-
-        self.display_variables[name] = string_var
+        toolbar = NavigationToolbar2Tk(canvas, parent_frame, pack_toolbar=False)
+        toolbar.update()
+        toolbar.pack(side=tk.TOP, fill=tk.X)
 
     def refresh(self):
-        
-        static_margin = self._calc_static_margin()
-        
-        self.display_variables["Static Margin"].set(f"{static_margin:.3f}")
+        x_flatness, y_flatness = self._get_flat_surface_weights()
+        self.flatness_ax.clear()
+        self.flatness_ax.plot(x_flatness, y_flatness)
+        apply_pretty_plot_settings(self.flatness_ax)
 
-    def _calc_static_margin(self):
-        return 0
+        x_airfoil, y_airfoil = self._get_airfoil_surface()
+
+        weights = np.concatenate((y_flatness[::-1], y_flatness), axis=0)
+        signs = np.ones(weights.shape)
+        signs[y_airfoil < 0] = -1
+        y = (1 - weights) * y_airfoil +  weights * signs * (0.5 * 0.01 * self.design_data.airfoil.t)
+
+        self.airfoil_ax.clear()
+        self.airfoil_ax.plot(x_airfoil, y)
+        self.airfoil_ax.axis("equal")
+        apply_pretty_plot_settings(self.airfoil_ax)
+
+        self.fig.canvas.draw()
+
+    @property
+    def _num_points(self):
+        return 50000
+
+    def _get_flat_surface_weights(self):
+        c = np.linspace(0, 1, int(self._num_points/2))
+        y = np.zeros(c.shape)
+
+        flat_params = self.design_data.flat_section
+
+        rising_slope = (1 - 0) / (flat_params.c1 - flat_params.c0)
+        indeces = np.logical_and(flat_params.c0 < c, c < flat_params.c1)
+        y[indeces] = rising_slope * (c[indeces] - flat_params.c0)
+
+        y[np.logical_and(flat_params.c1 < c, c < flat_params.c2)] = 1
+
+        descending_slope = (0 - 1) / (flat_params.c3 - flat_params.c2)
+        indeces = np.logical_and(flat_params.c2 < c, c < flat_params.c3)
+        y[indeces] = 1 + descending_slope * (c[indeces] - flat_params.c2)
+
+        return c, y
+
+    def _get_airfoil_surface(self):
+        airfoil = NacaFourDigitAirfoil(
+            self.design_data.airfoil.m,
+            self.design_data.airfoil.p,
+            self.design_data.airfoil.t
+        )
+        xu = np.linspace(1, 0, int(self._num_points/2))
+        xu, yu = airfoil.get_upper(xu)
+        xl = np.linspace(0, 1, int(self._num_points/2))
+        xl, yl = airfoil.get_lower(xl)
+        return np.concatenate((xu,xl)), np.concatenate((yu, yl))
 

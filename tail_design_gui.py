@@ -9,7 +9,7 @@ from stratosurfer_tail_design.gui import (
     info_frames,
     AirfoilDesignFrame,
     TailDimensionsDesignFrame,
-    TailPositionDesignFrame,
+    FlatSectionDesignFrame,
 )
 import stratosurfer_tail_design.data_loading as data_loading
 
@@ -39,7 +39,7 @@ class GuiManager:
 
     def load_design(self):
         self.design_data = data_loading.load_tail_design()
-        
+
     def load_design_and_refresh(self):
         self.load_design()
         self.update_entry_boxes()
@@ -68,17 +68,13 @@ class GuiManager:
         self.figure_control = ttk.Notebook(master=figure_frame)
         self.figure_control.pack(side=tk.TOP)
 
-        dimensions_plotter_frame = tk.Frame(master=self.figure_control)
-        self.plot_frames["Dimensions"] = info_frames.DimensionsPlotFrame(dimensions_plotter_frame, self.design_data)
-        self.figure_control.add(dimensions_plotter_frame, text="Dimensions")
-
         airfoil_plotter_frame = tk.Frame(master=self.figure_control)
         self.plot_frames["Airfoil"] = info_frames.AirfoilPlotFrame(airfoil_plotter_frame, self.design_data)
         self.figure_control.add(airfoil_plotter_frame, text="Airfoil")
 
-        static_margin_frame = tk.Frame(master=self.figure_control)
-        self.plot_frames["Static Margin"] = info_frames.StaticMarginInfoFrame(static_margin_frame, self.design_data)
-        self.figure_control.add(static_margin_frame, text= "Static Margin")
+        dimensions_plotter_frame = tk.Frame(master=self.figure_control)
+        self.plot_frames["Dimensions"] = info_frames.DimensionsPlotFrame(dimensions_plotter_frame, self.design_data)
+        self.figure_control.add(dimensions_plotter_frame, text="Dimensions")
 
         refresh_button = tk.Button(
             master=figure_frame,
@@ -116,6 +112,14 @@ class GuiManager:
         airfoil_design_parent.pack(side=tk.RIGHT)
         self.design_frames["Airfoil"] = AirfoilDesignFrame(self, airfoil_design_parent, self.design_data)
 
+        flat_section_parent = tk.Frame(
+            master=design_control_frame,
+            highlightbackground="grey",
+            highlightthickness=1
+        )
+        flat_section_parent.pack(side=tk.RIGHT)
+        self.design_frames["Flat Section"] = FlatSectionDesignFrame(self, flat_section_parent, self.design_data)
+
         tail_dimensions_parent = tk.Frame(
             master=design_control_frame,
             highlightbackground="grey",
@@ -123,14 +127,6 @@ class GuiManager:
         )
         tail_dimensions_parent.pack(side=tk.RIGHT)
         self.design_frames["Dimensions"] = TailDimensionsDesignFrame(self, tail_dimensions_parent, self.design_data)
-
-        positional_parent = tk.Frame(
-            master=design_control_frame,
-            highlightbackground="grey",
-            highlightthickness=1
-        )
-        positional_parent.pack(side=tk.RIGHT)
-        self.design_frames["Positional"] = TailPositionDesignFrame(self, positional_parent, self.design_data)
 
 
 def main():
