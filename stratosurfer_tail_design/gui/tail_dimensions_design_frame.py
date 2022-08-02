@@ -5,16 +5,16 @@ import numpy as np
 
 from . import ButtonSizes
 from stratosurfer_tail_design import DesignData
-from stratosurfer_tail_design.submodules.airfoil_defs.naca_four_digit_airfoil import NacaFourDigitAirfoil
+
+
+class Options(Enum):
+    span = "Span"
+    base_chord = "Base chord"
+    tip_chord = "Tip chord"
+    sweep = "Sweep"
 
 
 class TailDimensionsDesignFrame:
-
-    class Options(Enum):
-        span = "Span"
-        base_chord = "Base chord"
-        tip_chord = "Tip chord"
-        sweep = "Sweep"
 
     def __init__(self, gui_handle, parent_frame:tk.Frame, design_data:DesignData):
         self.gui_handle = gui_handle
@@ -25,7 +25,6 @@ class TailDimensionsDesignFrame:
             text="Tail Dimensions\nUnits: mm")
         design_frame_label.pack(side=tk.TOP)
 
-        Options = TailDimensionsDesignFrame.Options
         self.entries = {}
         self._add_entry(parent_frame, Options.span, f"{self.tail_dimensions_data.span}")
         self._add_entry(parent_frame, Options.base_chord, f"{self.tail_dimensions_data.base_chord}")
@@ -55,31 +54,12 @@ class TailDimensionsDesignFrame:
         self.entries[label_enum] = entry
 
     def read_design_data(self):
-        Options = TailDimensionsDesignFrame.Options
         self.tail_dimensions_data.span = float(self.entries[Options.span].get())
         self.tail_dimensions_data.base_chord = float(self.entries[Options.base_chord].get())
         self.tail_dimensions_data.tip_chord = float(self.entries[Options.tip_chord].get())
         self.tail_dimensions_data.sweep = float(self.entries[Options.sweep].get())
 
-    def get_surface(self):
-        x = [
-            0,
-            self.sweep + (self.base_chord - self.tip_chord),
-            self.sweep + (self.base_chord - self.tip_chord) + self.tip_chord,
-            self.base_chord,
-            0,
-        ]
-        y = [
-            0,
-            self.span,
-            self.span,
-            0,
-            0,
-        ]
-        return np.array(x), np.array(y)
-
     def update_entry_boxes(self):
-        Options = TailDimensionsDesignFrame.Options
         for option in Options:
             self.entries[option].delete(0, tk.END)
         self.entries[Options.span].insert(0, f"{self.tail_dimensions_data.span}")

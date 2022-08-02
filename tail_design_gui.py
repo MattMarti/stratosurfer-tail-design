@@ -10,6 +10,8 @@ from stratosurfer_tail_design.gui import (
     AirfoilDesignFrame,
     TailDimensionsDesignFrame,
     FlatSectionDesignFrame,
+    ServoParametersDesignFrame,
+    ElevatorFlapDesignFrame,
 )
 import stratosurfer_tail_design.data_loading as data_loading
 
@@ -127,6 +129,22 @@ class GuiManager:
         )
         tail_dimensions_parent.pack(side=tk.RIGHT)
         self.design_frames["Dimensions"] = TailDimensionsDesignFrame(self, tail_dimensions_parent, self.design_data)
+
+        servo_parameters_parent = tk.Frame(
+            master=design_control_frame,
+            highlightbackground="grey",
+            highlightthickness=1
+        )
+        servo_parameters_parent.pack(side=tk.RIGHT)
+        self.design_frames["Servo Params"] = ServoParametersDesignFrame(self, servo_parameters_parent, self.design_data)
+
+        elevator_flap_parent = tk.Frame(
+            master=design_control_frame,
+            highlightbackground="grey",
+            highlightthickness=1
+        )
+        elevator_flap_parent.pack(side=tk.RIGHT)
+        self.design_frames["Elevator Flap"] = ElevatorFlapDesignFrame(self, elevator_flap_parent, self.design_data)
 
 
 def main():
