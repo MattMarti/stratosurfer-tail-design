@@ -32,17 +32,16 @@ class FlatSection:
 class ServoParameters:
     x: float
     y: float
-    length: float
-    width: float
     ctrl_horn_x: float
     ctrl_horn_y: float
+    ctrl_horn_len: float
 
 
 @dataclass
 class ElevatorFlap:
-    ctrl_horn_len: float
     span: float
     width: float
+    span_begin: float
 
 
 @dataclass
@@ -66,16 +65,15 @@ class DesignData:
         servo_parameters_dict = raw_data.get("servo_parameters", {
                 "x": 0,
                 "y": 0,
-                "length": 0,
-                "width": 0,
                 "ctrl_horn_x": 0,
                 "ctrl_horn_y": 0,
+                "ctrl_horn_len": 100,
             }
         )
         elevator_flap_dict = raw_data.get("elevator_flap", {
-                "ctrl_horn_len": 100,
                 "span": 250,
                 "width": 50,
+                "span_begin": 100,
             }
         )
         return cls(
@@ -104,15 +102,14 @@ class DesignData:
             servo_parameters = ServoParameters(
                 x = servo_parameters_dict["x"],
                 y = servo_parameters_dict["y"],
-                length = servo_parameters_dict["length"],
-                width = servo_parameters_dict["width"],
                 ctrl_horn_x = servo_parameters_dict["ctrl_horn_x"],
-                ctrl_horn_y = servo_parameters_dict["ctrl_horn_y"]
+                ctrl_horn_y = servo_parameters_dict["ctrl_horn_y"],
+                ctrl_horn_len = servo_parameters_dict["ctrl_horn_len"]
             ),
             elevator_flap = ElevatorFlap(
-                ctrl_horn_len = elevator_flap_dict["ctrl_horn_len"],
                 span = elevator_flap_dict["span"],
-                width = elevator_flap_dict["width"]
+                width = elevator_flap_dict["width"],
+                span_begin = elevator_flap_dict["span_begin"]
             )
         )
 
@@ -143,14 +140,13 @@ class DesignData:
             "servo_parameters": {
                 "x": self.servo_parameters.x,
                 "y": self.servo_parameters.y,
-                "length": self.servo_parameters.length,
-                "width": self.servo_parameters.width,
                 "ctrl_horn_x": self.servo_parameters.ctrl_horn_x,
-                "ctrl_horn_y": self.servo_parameters.ctrl_horn_y
+                "ctrl_horn_y": self.servo_parameters.ctrl_horn_y,
+                "ctrl_horn_len": self.servo_parameters.ctrl_horn_len,
             },
             "elevator_flap": {
-                "ctrl_horn_len": self.elevator_flap.ctrl_horn_len,
                 "span": self.elevator_flap.span,
-                "width": self.elevator_flap.width
+                "width": self.elevator_flap.width,
+                "span_begin": self.elevator_flap.span_begin,
             },
         }

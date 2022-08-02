@@ -8,9 +8,9 @@ from stratosurfer_tail_design import DesignData
 
 
 class Options(Enum):
-    ctrl_horn_len = "ctrl_horn_len"
     span = "span"
     width = "width"
+    span_begin = "span_begin"
 
 
 class ElevatorFlapDesignFrame:
@@ -25,10 +25,9 @@ class ElevatorFlapDesignFrame:
         design_frame_label.pack(side=tk.TOP)
 
         self.entries = {}
-        self._add_entry(parent_frame, Options.ctrl_horn_len, f"{self.elevator_flap.ctrl_horn_len}")
         self._add_entry(parent_frame, Options.span, f"{self.elevator_flap.span}")
         self._add_entry(parent_frame, Options.width, f"{self.elevator_flap.width}")
-
+        self._add_entry(parent_frame, Options.span_begin, f"{self.elevator_flap.span_begin}")
 
     def _add_entry(self, parent_frame:tk.Frame, label_enum, default_value:str):
         frame = tk.Frame(master=parent_frame)
@@ -52,14 +51,13 @@ class ElevatorFlapDesignFrame:
         self.entries[label_enum] = entry
 
     def read_design_data(self):
-        self.elevator_flap.ctrl_horn_len = float(self.entries[Options.ctrl_horn_len].get())
         self.elevator_flap.span = float(self.entries[Options.span].get())
         self.elevator_flap.width = float(self.entries[Options.width].get())
-
+        self.elevator_flap.span_begin = float(self.entries[Options.span_begin].get())
 
     def update_entry_boxes(self):
         for option in Options:
             self.entries[option].delete(0, tk.END)
-        self.entries[Options.ctrl_horn_len].insert(0, f"{self.elevator_flap.ctrl_horn_len}")
         self.entries[Options.span].insert(0, f"{self.elevator_flap.span}")
         self.entries[Options.width].insert(0, f"{self.elevator_flap.width}")
+        self.entries[Options.span_begin].insert(0, f"{self.elevator_flap.span_begin}")

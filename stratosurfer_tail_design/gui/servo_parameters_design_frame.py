@@ -10,10 +10,9 @@ from stratosurfer_tail_design import DesignData
 class Options(Enum):
     x = "x"
     y = "y"
-    length = "length"
-    width = "width"
     ctrl_horn_x = "ctrl_horn_x"
     ctrl_horn_y = "ctrl_horn_y"
+    ctrl_horn_len = "ctrl_horn_len"
 
 
 class ServoParametersDesignFrame:
@@ -30,10 +29,9 @@ class ServoParametersDesignFrame:
         self.entries = {}
         self._add_entry(parent_frame, Options.x, f"{self.servo_parameters.x}")
         self._add_entry(parent_frame, Options.y, f"{self.servo_parameters.y}")
-        self._add_entry(parent_frame, Options.length, f"{self.servo_parameters.length}")
-        self._add_entry(parent_frame, Options.width, f"{self.servo_parameters.width}")
         self._add_entry(parent_frame, Options.ctrl_horn_x, f"{self.servo_parameters.ctrl_horn_x}")
         self._add_entry(parent_frame, Options.ctrl_horn_y, f"{self.servo_parameters.ctrl_horn_y}")
+        self._add_entry(parent_frame, Options.ctrl_horn_len, f"{self.servo_parameters.ctrl_horn_len}")
 
 
     def _add_entry(self, parent_frame:tk.Frame, label_enum, default_value:str):
@@ -60,10 +58,9 @@ class ServoParametersDesignFrame:
     def read_design_data(self):
         self.servo_parameters.x = float(self.entries[Options.x].get())
         self.servo_parameters.y = float(self.entries[Options.y].get())
-        self.servo_parameters.length = float(self.entries[Options.length].get())
-        self.servo_parameters.width = float(self.entries[Options.width].get())
         self.servo_parameters.ctrl_horn_x = float(self.entries[Options.ctrl_horn_x].get())
         self.servo_parameters.ctrl_horn_y = float(self.entries[Options.ctrl_horn_y].get())
+        self.servo_parameters.ctrl_horn_len = float(self.entries[Options.ctrl_horn_len].get())
 
 
     def update_entry_boxes(self):
@@ -71,7 +68,6 @@ class ServoParametersDesignFrame:
             self.entries[option].delete(0, tk.END)
         self.entries[Options.x].insert(0, f"{self.servo_parameters.x}")
         self.entries[Options.y].insert(0, f"{self.servo_parameters.y}")
-        self.entries[Options.length].insert(0, f"{self.servo_parameters.length}")
-        self.entries[Options.width].insert(0, f"{self.servo_parameters.width}")
         self.entries[Options.ctrl_horn_x].insert(0, f"{self.servo_parameters.ctrl_horn_x}")
         self.entries[Options.ctrl_horn_y].insert(0, f"{self.servo_parameters.ctrl_horn_y}")
+        self.entries[Options.ctrl_horn_len].insert(0, f"{self.servo_parameters.ctrl_horn_len}")
