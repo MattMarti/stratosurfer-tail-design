@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 
 import numpy as np
 
@@ -50,6 +51,19 @@ class GuiManager:
     def save_design(self):
         data_loading.save_tail_design(self.design_data)
 
+    def export_airfoil(self):
+
+        x_airfoil, y_airfoil = self.plot_frames["Airfoil"].get_airfoil_surface(num_points=500)
+        with filedialog.asksaveasfile(
+            title="Export airfoil",
+            filetypes=[("csv", "*.csv"), ("data", "*.dat"), ("Text", "*.txt")],
+            initialdir="data",
+            defaultextension=".csv",
+            initialfile="elev_airfoil.csv"
+        ) as fid:
+            for x, y in zip(x_airfoil, y_airfoil):
+                fid.write(f"{x:.6f}, {y:.6f}\n")
+
     def update_entry_boxes(self):
         for design_control in self.design_frames.values():
             design_control.update_entry_boxes()
@@ -78,16 +92,22 @@ class GuiManager:
         self.plot_frames["Dimensions"] = info_frames.DimensionsPlotFrame(dimensions_plotter_frame, self.design_data)
         self.figure_control.add(dimensions_plotter_frame, text="Dimensions")
 
+        plot_buttons_frame = tk.Frame(master=self.root)
+        plot_buttons_frame.pack(side=tk.LEFT)
+
         refresh_button = tk.Button(
-            master=figure_frame,
+            master=plot_buttons_frame,
             text="Refresh",
             width=ButtonSizes.GUI_BUTTON_WIDTH,
             command=lambda: self.refresh_info_display()
         )
         refresh_button.pack(side=tk.TOP, anchor=tk.NW)
 
+        utility_buttons_frame = tk.Frame(master=self.root)
+        utility_buttons_frame.pack(side=tk.RIGHT)
+
         save_design_button = tk.Button(
-            master=figure_frame,
+            master=utility_buttons_frame,
             text="Save design",
             width=ButtonSizes.GUI_BUTTON_WIDTH,
             command=lambda: self.save_design()
@@ -95,12 +115,20 @@ class GuiManager:
         save_design_button.pack(side=tk.TOP, anchor=tk.NW)
 
         load_design_button = tk.Button(
-            master=figure_frame,
+            master=utility_buttons_frame,
             text="Load design",
             width=ButtonSizes.GUI_BUTTON_WIDTH,
             command=lambda: self.load_design_and_refresh()
         )
         load_design_button.pack(side=tk.TOP, anchor=tk.NW)
+
+        export_airfoil_button = tk.Button(
+            master=utility_buttons_frame,
+            text="Export Airfoil",
+            width=ButtonSizes.GUI_BUTTON_WIDTH,
+            command=lambda: self.export_airfoil()
+        )
+        export_airfoil_button.pack(side=tk.TOP, anchor=tk.NW)
 
     def initialize_design_control_frames(self):
         design_control_frame = tk.Frame(master=self.root)

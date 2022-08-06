@@ -185,20 +185,14 @@ class AirfoilPlotFrame(InfoFrameBase):
         toolbar.pack(side=tk.TOP, fill=tk.X)
 
     def refresh(self):
-        x_flatness, y_flatness = self._get_flat_surface_weights()
+        x_flatness, y_flatness = self._get_flat_surface_weights(self._num_points)
         self.flatness_ax.clear()
         self.flatness_ax.plot(x_flatness, y_flatness)
         apply_pretty_plot_settings(self.flatness_ax)
 
-        x_airfoil, y_airfoil = self._get_airfoil_surface()
-
-        weights = np.concatenate((y_flatness[::-1], y_flatness), axis=0)
-        signs = np.ones(weights.shape)
-        signs[y_airfoil < 0] = -1
-        y = (1 - weights) * y_airfoil +  weights * signs * (0.5 * 0.01 * self.design_data.airfoil.t) * self.design_data.flat_section.t
-
+        x_airfoil, y_airfoil = self.get_airfoil_surface(self._num_points)
         self.airfoil_ax.clear()
-        self.airfoil_ax.plot(x_airfoil, y)
+        self.airfoil_ax.plot(x_airfoil, y_airfoil)
         self.airfoil_ax.axis("equal")
         apply_pretty_plot_settings(self.airfoil_ax)
 
@@ -208,8 +202,23 @@ class AirfoilPlotFrame(InfoFrameBase):
     def _num_points(self):
         return 50000
 
-    def _get_flat_surface_weights(self):
-        c = np.linspace(0, 1, int(self._num_points/2))
+    def get_airfoil_surface(self, num_points):
+        x_flatness, y_flatness = self._get_flat_surface_weights(num_points)
+        self.flatness_ax.clear()
+        self.flatness_ax.plot(x_flatness, y_flatness)
+        apply_pretty_plot_settings(self.flatness_ax)
+
+        x_airfoil, y_airfoil = self._get_naca_surface(num_points)
+
+        weights = np.concatenate((y_flatness[::-1], y_flatness), axis=0)
+        signs = np.ones(weights.shape)
+        signs[y_airfoil < 0] = -1
+        y = (1 - weights) * y_airfoil +  weights * signs * (0.5 * 0.01 * self.design_data.airfoil.t) * self.design_data.flat_section.t
+
+        return x_airfoil, y
+
+    def _get_flat_surface_weights(self, num_points):
+        c = np.linspace(0, 1, int(num_points/2))
         y = np.zeros(c.shape)
 
         flat_params = self.design_data.flat_section
@@ -226,15 +235,15 @@ class AirfoilPlotFrame(InfoFrameBase):
 
         return c, y
 
-    def _get_airfoil_surface(self):
+    def _get_naca_surface(self, num_points):
         airfoil = NacaFourDigitAirfoil(
             self.design_data.airfoil.m,
             self.design_data.airfoil.p,
             self.design_data.airfoil.t
         )
-        xu = np.linspace(1, 0, int(self._num_points/2))
+        xu = np.linspace(1, 0, int(num_points/2))
         xu, yu = airfoil.get_upper(xu)
-        xl = np.linspace(0, 1, int(self._num_points/2))
+        xl = np.linspace(0, 1, int(num_points/2))
         xl, yl = airfoil.get_lower(xl)
         return np.concatenate((xu,xl)), np.concatenate((yu, yl))
 
