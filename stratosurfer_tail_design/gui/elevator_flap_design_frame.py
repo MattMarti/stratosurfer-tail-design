@@ -21,7 +21,7 @@ class ElevatorFlapDesignFrame:
 
         design_frame_label = tk.Label(
             master=parent_frame,
-            text="Servo Params\nUnits: mm")
+            text="Elevator\nUnits: mm")
         design_frame_label.pack(side=tk.TOP)
 
         self.entries = {}

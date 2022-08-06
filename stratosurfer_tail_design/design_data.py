@@ -27,6 +27,7 @@ class FlatSection:
     c1: float
     c2: float
     c3: float
+    t: float
 
 @dataclass
 class ServoParameters:
@@ -58,6 +59,7 @@ class DesignData:
                 "c1" : 0.2,
                 "c2" : 0.4,
                 "c3" : 0.5,
+                "t": 1.0,
             }
         )
         servo_parameters_dict = raw_data.get("servo_parameters", {
@@ -93,7 +95,8 @@ class DesignData:
                 c0 = flat_section_dict["c0"],
                 c1 = flat_section_dict["c1"],
                 c2 = flat_section_dict["c2"],
-                c3 = flat_section_dict["c3"]
+                c3 = flat_section_dict["c3"],
+                t = flat_section_dict.get("t", 1.0),
             ),
             servo_parameters = ServoParameters(
                 x = servo_parameters_dict["x"],
@@ -130,6 +133,7 @@ class DesignData:
                 "c1": self.flat_section.c1,
                 "c2": self.flat_section.c2,
                 "c3": self.flat_section.c3,
+                "t": self.flat_section.t,
             },
             "servo_parameters": {
                 "x": self.servo_parameters.x,

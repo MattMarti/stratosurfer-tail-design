@@ -50,7 +50,7 @@ class DimensionsPlotFrame(InfoFrameBase):
         x = [
             0,
             td.sweep + (td.base_chord - td.tip_chord),
-            td.sweep + (td.base_chord - td.tip_chord) + td.tip_chord,
+            td.sweep + td.base_chord,
             td.base_chord,
             0,
         ]
@@ -181,7 +181,7 @@ class AirfoilPlotFrame(InfoFrameBase):
         weights = np.concatenate((y_flatness[::-1], y_flatness), axis=0)
         signs = np.ones(weights.shape)
         signs[y_airfoil < 0] = -1
-        y = (1 - weights) * y_airfoil +  weights * signs * (0.5 * 0.01 * self.design_data.airfoil.t)
+        y = (1 - weights) * y_airfoil +  weights * signs * (0.5 * 0.01 * self.design_data.airfoil.t) * self.design_data.flat_section.t
 
         self.airfoil_ax.clear()
         self.airfoil_ax.plot(x_airfoil, y)

@@ -11,6 +11,7 @@ class Options(Enum):
     c1 = "c1"
     c2 = "c2"
     c3 = "c3"
+    t = "t"
 
 class FlatSectionDesignFrame:
 
@@ -28,6 +29,7 @@ class FlatSectionDesignFrame:
         self._add_entry(parent_frame, Options.c1, f"{self.airfoil_design_data.flat_section.c1}")
         self._add_entry(parent_frame, Options.c2, f"{self.airfoil_design_data.flat_section.c2}")
         self._add_entry(parent_frame, Options.c3, f"{self.airfoil_design_data.flat_section.c3}")
+        self._add_entry(parent_frame, Options.t, f"{self.airfoil_design_data.flat_section.t}")
 
     def _add_entry(self, parent_frame:tk.Frame, label_enum, default_value:str):
         frame = tk.Frame(master=parent_frame)
@@ -55,6 +57,7 @@ class FlatSectionDesignFrame:
         self.airfoil_design_data.flat_section.c1 = float(self.entries[Options.c1].get())
         self.airfoil_design_data.flat_section.c2 = float(self.entries[Options.c2].get())
         self.airfoil_design_data.flat_section.c3 = float(self.entries[Options.c3].get())
+        self.airfoil_design_data.flat_section.t = float(self.entries[Options.t].get())
 
     def update_entry_boxes(self):
         for option in Options:
@@ -63,3 +66,4 @@ class FlatSectionDesignFrame:
         self.entries[Options.c1].insert(0, f"{self.airfoil_design_data.flat_section.c1}")
         self.entries[Options.c2].insert(0, f"{self.airfoil_design_data.flat_section.c2}")
         self.entries[Options.c3].insert(0, f"{self.airfoil_design_data.flat_section.c3}")
+        self.entries[Options.t].insert(0, f"{self.airfoil_design_data.flat_section.t}")
