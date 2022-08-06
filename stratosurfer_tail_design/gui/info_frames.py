@@ -115,11 +115,24 @@ class DimensionsPlotFrame(InfoFrameBase):
     def _get_elevator_flap_points(self):
         td = self.design_data.tail_dimensions
         ef = self.design_data.elevator_flap
-        slope = td.sweep / td.span
+
+        # Figure out length of chord at the span_begin location
+        #
+        # chord_0 = td.base_chord
+        # chord_B = td.tip_chord
+        # chord_y = dchord_dy * y + y_0
+        y_0 = td.base_chord
+        dchord_dy = (td.tip_chord - td.base_chord)/td.span
+        chord_b = dchord_dy * ef.span_begin + y_0
+
+        # Figure out length of chord at end of elevator flap
+        chord_flap_end = dchord_dy * (ef.span_begin + ef.span) + y_0
+        width_flat_end = ef.width / chord_b * chord_flap_end
+
         x = [
             td.base_chord,
             td.base_chord - ef.width,
-            td.base_chord - ef.width,
+            td.base_chord - width_flat_end,
             td.base_chord,
         ]
         y = [
@@ -128,8 +141,9 @@ class DimensionsPlotFrame(InfoFrameBase):
             ef.span_begin + ef.span,
             ef.span_begin + ef.span,
         ]
+        sweep_slope = td.sweep / td.span
         for i in range(len(x)):
-            x[i] += y[i] * slope
+            x[i] += y[i] * sweep_slope
         return x, y
 
 
