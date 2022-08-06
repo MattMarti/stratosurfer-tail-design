@@ -85,8 +85,8 @@ class DimensionsPlotFrame(InfoFrameBase):
     def _get_servo_points(self):
         sp = self.design_data.servo_parameters
 
-        servo_width = 25
-        servo_height = 20
+        servo_width = 24
+        servo_height = 23
         control_horn_x_offset = 10
         control_horn_y_offset = 5
 
